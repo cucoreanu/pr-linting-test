@@ -33,7 +33,7 @@ jobs:
       - name: Set PR status to skip semantic check if matched
         if: steps.title-check.outputs.skip == 'true'
         run: |
-          echo "Skipping semantic check for PR title: '${{ GITHUB_REF }}'"
+          echo "Skipping semantic check for PR title: '${{ github.event.pull_request.title }}'"
 
       - uses: amannn/action-semantic-pull-request@v5
         env:
