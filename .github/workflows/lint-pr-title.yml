@@ -17,6 +17,24 @@ jobs:
     name: Validate PR title
     runs-on: ubuntu-latest
     steps:
+      - name: Check PR title
+        id: title-check
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const title = context.payload.pull_request.title;
+            const ignoredPatterns = [/^Revert\b/, /^Bump\b/];
+
+            // Check if title matches any ignored pattern
+            const skipSemanticCheck = ignoredPatterns.some(pattern => pattern.test(title));
+
+            core.setOutput("skip", skipSemanticCheck);
+
+      - name: Set PR status to skip semantic check if matched
+        if: steps.title-check.outputs.skip == 'true'
+        run: |
+          echo "Skipping semantic check for PR title: '${{ GITHUB_REF }}'"
+
       - uses: amannn/action-semantic-pull-request@v5
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -64,5 +82,5 @@ jobs:
           # subject. The `headerPattern` should contain a regex where the capturing groups in parentheses
           # correspond to the parts listed in `headerPatternCorrespondence`.
           # See: https://github.com/conventional-changelog/conventional-changelog/tree/master/packages/conventional-commits-parser#headerpattern
-          headerPattern: '^(?:(Revert|Bump) .*)|(\w*)(?:\(([\w$.\-*/ ]*)\))?: (.*)$'
+          #headerPattern: '^(\w*)(?:\(([\w$.\-*/ ]*)\))?: (.*)$'
           #headerPatternCorrespondence: type, scope, subject
