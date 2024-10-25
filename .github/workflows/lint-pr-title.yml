@@ -35,7 +35,9 @@ jobs:
         run: |
           echo "Skipping semantic check for PR title: '${{ github.event.pull_request.title }}'"
 
-      - uses: amannn/action-semantic-pull-request@v5
+      - name: Run Semantic Pull Request check
+        if: steps.title-check.outputs.skip != 'true'  # Only run if title doesn't match ignored patterns
+        uses: amannn/action-semantic-pull-request@v5
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
