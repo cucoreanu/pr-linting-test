@@ -17,16 +17,16 @@ jobs:
     name: Validate PR title
     runs-on: ubuntu-latest
     steps:
-      - name: Check PR title
+      - name: Test for ignored patterns
         id: title-check
         uses: actions/github-script@v6
         with:
           script: |
             const title = context.payload.pull_request.title;
-            const ignoredPatterns = [/^Revert\b/, /^Bump\b/];
-
+            const ignoredPatterns = [/^revert\b/, /^bump\b/, /^!\b/];
+  
             // Check if title matches any ignored pattern
-            const skipSemanticCheck = ignoredPatterns.some(pattern => pattern.test(title));
+            ignoredPatterns.some(pattern => pattern.test(title.toLowerCase()));
 
             core.setOutput("skip", skipSemanticCheck);
 
@@ -79,6 +79,7 @@ jobs:
           ignoreLabels: |
             bot
             ignore-semantic-pull-request
+
           # If you're using a format for the PR title that differs from the traditional Conventional
           # Commits spec, you can use these options to customize the parsing of the type, scope and
           # subject. The `headerPattern` should contain a regex where the capturing groups in parentheses
