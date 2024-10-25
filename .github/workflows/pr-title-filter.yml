@@ -1,0 +1,33 @@
+name: PR Title Filter
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize]
+
+jobs:
+  filter-title:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check PR title
+        id: title-check
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const title = context.payload.pull_request.title;
+            const ignoredPatterns = [/^Revert\b/, /^Bump\b/];
+            
+            // Check if title matches any ignored pattern
+            const skipSemanticCheck = ignoredPatterns.some(pattern => pattern.test(title));
+            
+            core.setOutput("skip", skipSemanticCheck);
+
+      - name: Set PR status to skip semantic check if matched
+        if: steps.title-check.outputs.skip == 'true'
+        run: | 
+          echo "Skipping semantic check for PR title: '${{ github.event.pull_request.title }}'"
+
+      - name: Run Semantic Pull Request check
+        if: steps.title-check.outputs.skip != 'true'
+        uses: amannn/action-semantic-pull-request@v3
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
