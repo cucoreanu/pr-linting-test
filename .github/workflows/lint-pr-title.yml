@@ -26,7 +26,7 @@ jobs:
             const ignoredPatterns = [/^revert\b/, /^bump\b/, /^!\b/];
   
             // Check if title matches any ignored pattern
-            ignoredPatterns.some(pattern => pattern.test(title.toLowerCase()));
+            const skipSemanticCheck = ignoredPatterns.some(pattern => pattern.test(title.toLowerCase()));
 
             core.setOutput("skip", skipSemanticCheck);
 
