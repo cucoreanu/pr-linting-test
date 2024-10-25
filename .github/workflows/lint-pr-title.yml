@@ -64,5 +64,5 @@ jobs:
           # subject. The `headerPattern` should contain a regex where the capturing groups in parentheses
           # correspond to the parts listed in `headerPatternCorrespondence`.
           # See: https://github.com/conventional-changelog/conventional-changelog/tree/master/packages/conventional-commits-parser#headerpattern
-          #headerPattern: '^(\w*)(?:\(([\w$.\-*/ ]*)\))?: (.*)$'
+          headerPattern: '^(?:(Revert|Bump) .*)|(\w*)(?:\(([\w$.\-*/ ]*)\))?: (.*)$'
           #headerPatternCorrespondence: type, scope, subject
