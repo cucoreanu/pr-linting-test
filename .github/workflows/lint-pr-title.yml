@@ -1,4 +1,4 @@
-name: "Lint PR"
+name: "Validate PR title"
 
 on:
   pull_request_target:
@@ -10,13 +10,11 @@ on:
       - labeled
       - unlabeled
 
-
 permissions:
   pull-requests: read
 
 jobs:
   main:
-    name: Validate PR title
     runs-on: ubuntu-latest
     steps:
       - name: Test for ignored patterns
@@ -26,7 +24,7 @@ jobs:
           script: |
             const title = context.payload.pull_request.title;
             const ignoredPatterns = [/^revert\b/, /^bump\b/, /^!\b/];
-  
+
             // Check if title matches any ignored pattern
             const skipSemanticCheck = ignoredPatterns.some(pattern => pattern.test(title.toLowerCase()));
 
@@ -47,6 +45,7 @@ jobs:
           # These are regex patterns auto-wrapped in `^ $`.
           scopes: |
             LH-\d+
+            lh-\d+
 
           # Configure that a scope must always be provided.
           requireScope: true
@@ -81,6 +80,7 @@ jobs:
           ignoreLabels: |
             bot
             ignore-semantic-pull-request
+            dependencies
 
           # If you're using a format for the PR title that differs from the traditional Conventional
           # Commits spec, you can use these options to customize the parsing of the type, scope and
