@@ -1,4 +1,4 @@
-name: "Lint PR"
+name: "Validate PR title"
 
 on:
   pull_request_target:
@@ -7,17 +7,37 @@ on:
       - edited
       - synchronize
       - reopened
-
+      - labeled
+      - unlabeled
 
 permissions:
   pull-requests: read
 
 jobs:
   main:
-    name: Validate PR title
     runs-on: ubuntu-latest
     steps:
-      - uses: amannn/action-semantic-pull-request@v5
+      - name: Test for ignored patterns
+        id: title-check
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const title = context.payload.pull_request.title;
+            const ignoredPatterns = [/^revert\b/, /^bump\b/, /^!\b/];
+
+            // Check if title matches any ignored pattern
+            const skipSemanticCheck = ignoredPatterns.some(pattern => pattern.test(title.toLowerCase()));
+
+            core.setOutput("skip", skipSemanticCheck);
+
+      - name: Set PR status to skip semantic check if matched
+        if: steps.title-check.outputs.skip == 'true'
+        run: |
+          echo "Skipping semantic check for PR title: '${{ github.event.pull_request.title }}'"
+
+      - name: Run Semantic Pull Request check
+        if: steps.title-check.outputs.skip != 'true'  # Only run if title doesn't match ignored patterns
+        uses: amannn/action-semantic-pull-request@v5
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
@@ -25,6 +45,7 @@ jobs:
           # These are regex patterns auto-wrapped in `^ $`.
           scopes: |
             LH-\d+
+            lh-\d+
 
           # Configure that a scope must always be provided.
           requireScope: true
@@ -59,6 +80,8 @@ jobs:
           ignoreLabels: |
             bot
             ignore-semantic-pull-request
+            dependencies
+
           # If you're using a format for the PR title that differs from the traditional Conventional
           # Commits spec, you can use these options to customize the parsing of the type, scope and
           # subject. The `headerPattern` should contain a regex where the capturing groups in parentheses
