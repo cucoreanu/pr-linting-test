@@ -33,7 +33,7 @@ jobs:
       - name: Set PR status to skip semantic check if matched
         if: steps.title-check.outputs.skip == 'true'
         run: |
-          echo "Skipping semantic check for PR title: '${{ github.event.pull_request.title }}'"
+          echo "Skipping semantic check for the current PR"
 
       - name: Run Semantic Pull Request check
         if: steps.title-check.outputs.skip != 'true'  # Only run if title doesn't match ignored patterns
